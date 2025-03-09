@@ -295,6 +295,7 @@ typedef void    (*ImGuiMemFreeFunc)(void* ptr, void* user_data);                
 // ImVec2: 2D vector used to store positions, sizes etc. [Compile-time configurable type]
 // - This is a frequently used type in the API. Consider using IM_VEC2_CLASS_EXTRA to create implicit cast from/to our preferred type.
 // - Add '#define IMGUI_DEFINE_MATH_OPERATORS' before including this file (or in imconfig.h) to access courtesy maths operators for ImVec2 and ImVec4.
+
 IM_MSVC_RUNTIME_CHECKS_OFF
 struct ImVec2
 {

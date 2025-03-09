@@ -5,7 +5,9 @@
 #include "imgui_impl_opengl3.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_opengl.h>s
+#include <SDL3/SDL_opengl.h>
+
+#include "canvas.h"
 
 int main() {
     // Initialize SDL
@@ -47,13 +49,10 @@ int main() {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    
+    ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
 
-    /*ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }*/
+
 
     ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
@@ -68,6 +67,9 @@ int main() {
     // Main loop flag
     bool quit = false;
     SDL_Event e;
+
+
+    Canvas canvas;
 
     // Main loop
     while (!quit) {
@@ -90,10 +92,13 @@ int main() {
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
 
+
+
+        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
-
-
+        canvas.Process(io);
 
         // Rendering
         ImGui::Render();

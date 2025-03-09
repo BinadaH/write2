@@ -32,7 +32,8 @@ project "wapp"
 
     includedirs {
 	"deps/imgui/",
-	"deps/sdl/include"
+	"deps/sdl/include",
+	"wapp/include/"
     }
 
     -- filter "system:Linux"
