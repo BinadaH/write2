@@ -3252,6 +3252,9 @@ struct ImDrawList
     IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, int num_points, ImU32 col);
     IMGUI_API void  AddConcavePolyFilled(const ImVec2* points, int num_points, ImU32 col);
 
+    IMGUI_API void AddPolylineVariableWidth(const ImVec2* points, const int points_count, ImU32 col, ImDrawFlags flags, float thickness, float* width_arr, int width_arr_size);
+
+
     // Image primitives
     // - Read FAQ to understand what ImTextureID is.
     // - "p_min" and "p_max" represent the upper-left and lower-right corners of the rectangle.

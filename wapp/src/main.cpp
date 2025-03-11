@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
 
@@ -75,10 +76,47 @@ int main() {
     while (!quit) {
         // Handle events
         while (SDL_PollEvent(&e) != 0) {
-            ImGui_ImplSDL3_ProcessEvent(&e);
+            //ImGui_ImplSDL3_ProcessEvent(&e);
             if (e.type == SDL_EVENT_QUIT) {
                 quit = true;
             }
+            else if (e.type == SDL_EVENT_MOUSE_MOTION) {
+                /*io.MousePos.x = e.motion.x;
+                io.MousePos.y = e.motion.y;*/
+                io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
+                io.AddMousePosEvent(e.motion.x, e.motion.y);
+            }
+            else if (e.type == SDL_EVENT_PEN_MOTION) {
+                io.AddMouseSourceEvent(ImGuiMouseSource_Pen);
+                io.AddMousePosEvent(e.motion.x, e.motion.y);
+            }
+            else if (e.type == SDL_EVENT_PEN_DOWN) {
+                io.AddMouseSourceEvent(ImGuiMouseSource_Pen);
+                io.AddMouseButtonEvent(0, 1);
+            }
+            else if (e.type == SDL_EVENT_PEN_UP) {
+                io.AddMouseSourceEvent(ImGuiMouseSource_Pen);
+                io.AddMouseButtonEvent(0, 0);
+            } 
+            else if (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN || e.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+                int mouse_button = -1;
+                if (e.button.button == SDL_BUTTON_LEFT) { mouse_button = 0; }
+                if (e.button.button == SDL_BUTTON_RIGHT) { mouse_button = 1; }
+                if (e.button.button == SDL_BUTTON_MIDDLE) { mouse_button = 2; }
+                if (e.button.button == SDL_BUTTON_X1) { mouse_button = 3; }
+                if (e.button.button == SDL_BUTTON_X2) { mouse_button = 4; }
+                if (mouse_button == -1)
+                    break;
+                io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
+                io.AddMouseButtonEvent(mouse_button, (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN));
+                canvas.SetCurrPress(1);
+
+            }
+            else if (e.type == SDL_EVENT_PEN_AXIS && e.paxis.axis == SDL_PEN_AXIS_PRESSURE) {
+                canvas.SetCurrPress(e.paxis.value);
+            }
+            else
+                ImGui_ImplSDL3_ProcessEvent(&e);
         }
 
         if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)
@@ -91,6 +129,7 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
+
 
 
 

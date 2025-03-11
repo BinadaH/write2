@@ -78,7 +78,7 @@ public:
 	float x, y;
 
 	
-	ImVec2 toImVec2() {
+	ImVec2 im() {
 		return ImVec2(x, y);
 	}
 

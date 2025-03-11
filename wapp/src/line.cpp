@@ -5,8 +5,7 @@
 Line::~Line() {
 	points.clear();
     draw_points.clear();
-
-   
+    press.clear();
 }
 
 
@@ -18,6 +17,11 @@ void Line::AddPoint(Vec2 point) {
 	points.push_back(point);
 }
 
+void Line::AddPressPoint(float _press)
+{
+    press.push_back(_press);
+}
+
 void Line::Draw(ImDrawList* draw_list)
 {
 
@@ -27,14 +31,16 @@ void Line::Draw(ImDrawList* draw_list)
         }
     }
     else {
-        for (int i = 1; i < draw_points.size(); i++) {
-            draw_list->AddLine(ImVec2(draw_points[i].x, draw_points[i].y), ImVec2(draw_points[i - 1].x, draw_points[i - 1].y), IM_COL32(255, 255, 255, 255), line_width);
-        }
-        //draw_list->AddPolyline(draw_points.data(), draw_points.size(), ImColor(255, 255, 255, 255), ImDrawFlags_None, line_width);
+        //for (int i = 1; i < draw_points.size(); i++) {
+        //   float curr_press = press[press.size() / draw_points.size() * i];
+        //    draw_list->AddLine(ImVec2(draw_points[i].x, draw_points[i].y), ImVec2(draw_points[i - 1].x, draw_points[i - 1].y), IM_COL32(255, 255, 255, 255), curr_press * line_width);
+        //}
+        
+        draw_list->AddPolylineVariableWidth(draw_points.data(), draw_points.size(), ImColor(255, 255, 255, 255), ImDrawFlags_None, line_width, press.data(), press.size());
     }
 
 }
-void Line::UpdateWithExpMovingAverage() {
+void Line::ApplySmoothing() {
     draw_points.resize(points.size());
     const float a = 0.4f;  // EMA smoothing factor
 
@@ -44,8 +50,8 @@ void Line::UpdateWithExpMovingAverage() {
     std::vector<ImVec2> loessSmoothedPoints;
 
     // Define window size for Loess (number of points to consider for smoothing)
-    const int windowSize = 7;  // Use odd values for a symmetrical window
-    const float bandwidth = 3.0f;  // Control the weight of the points (higher = more localized smoothing)
+    const int windowSize = 5;  // Use odd values for a symmetrical window
+    const float bandwidth = 2.0f;  // Control the weight of the points (higher = more localized smoothing)
 
     for (size_t i = 0; i < points.size(); ++i) {
         // Define the window of points around the current point
@@ -69,12 +75,20 @@ void Line::UpdateWithExpMovingAverage() {
     }
 }
 
+Vec2 Line::GetLastSmoothedPoint()
+{
+    if (draw_points.size() > 0)
+        return draw_points.back();
+    else
+        return Vec2(0, 0);
+}
+
 // Apply Loess fit (local weighted regression)
 ImVec2 Line::ApplyLoessFit(int start, int end, int current, float bandwidth) {
     // Get points in the window
     std::vector<ImVec2> windowPoints;
     for (int i = start; i <= end; ++i) {
-        windowPoints.push_back(points[i].toImVec2());
+        windowPoints.push_back(points[i].im());
     }
 
     // Prepare the weighted matrix (weights based on distance)
