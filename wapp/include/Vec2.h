@@ -2,6 +2,7 @@
 #define VEC2_H
 
 #include "imgui.h"
+#include <iostream>
 
 class Vec2 {
 public:
@@ -85,6 +86,11 @@ public:
 
 	float length() {
 		return sqrtf(x * x + y * y);
+	}
+
+
+	friend std::ostream& operator<< (std::ostream &stream, Vec2 &v) {
+		return stream << v.x << "; " << v.y;
 	}
 
 };

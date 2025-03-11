@@ -4,6 +4,7 @@
 Canvas::Canvas() {
 	curr_line = NULL;
 	curr_press = 1;
+	cam.zoom_vel = 0.4;
 }
 
 Canvas::~Canvas() {
@@ -15,7 +16,7 @@ Canvas::~Canvas() {
 }
 
 void Canvas::Process(ImGuiIO &io) {
-	ImGui::Begin("Canvas", 0);
+	ImGui::Begin("Canvas", 0, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -28,6 +29,9 @@ void Canvas::Process(ImGuiIO &io) {
 	ImVec2 canvas_p1 = ((Vec2)canvas_p0 + canvas_sz).im();
 
 
+	cam.window_pos = canvas_p0;
+	cam.cam_size = canvas_sz;
+
 	ImGui::InvisibleButton("canvas", canvas_sz, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
 	const bool is_hovered = ImGui::IsItemHovered(); // Hovered
 	const bool is_active = ImGui::IsItemActive();   // Held
@@ -35,22 +39,51 @@ void Canvas::Process(ImGuiIO &io) {
 
 	if (is_hovered) {
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+		if (io.MouseDown[2]) {
+			cam.MoveBy((Vec2)io.MouseDelta * -1);
+		}
+		if (io.MouseWheel) {
+			cam.Zoom(io.MouseWheel);
+		}
 	}
-	
 
+	//std::cout << cam.cam_size << "\n";
+	draw_list->AddCircleFilled(cam.WorldToScreen(Vec2(0, 0)).im(), cam.ScaleWorldToScreen(25), IM_COL32(255, 0, 0, 255));
 
 	//std::cout << io.MousePos.x << "; " << io.MousePos.y << "\n";
 
+#define GRID_COL IM_COL32(100, 100, 100, 255)
+
+	//Draw Grid
+	static const int grid_size = 100;
+	Vec2 start_i = (cam.world_pos - cam.cam_size) / grid_size;
+	for (int x = (int)(start_i.x) * grid_size; x < cam.world_pos.x + cam.cam_size.x; x += grid_size) {
+		ImVec2 p0 = cam.WorldToScreen(Vec2(x, 0)).im();
+		ImVec2 p1 = p0;
+		p0.y = 0;
+		p1.y = canvas_sz.y;
+		draw_list->AddLine(p0, p1, GRID_COL, 1);
+	}
+	for (int y = (int)(start_i.y) * grid_size; y < cam.world_pos.y + cam.cam_size.y; y += grid_size) {
+		ImVec2 p0 = cam.WorldToScreen(Vec2(0, y)).im();
+		ImVec2 p1 = p0;
+		p0.x = 0;
+		p1.x = canvas_sz.x;
+		draw_list->AddLine(p0, p1, GRID_COL, 1);
+	}
+
+
 	draw_list->PushClipRect(canvas_p0, canvas_p1, true);
 	if (curr_line) {
-		curr_line->Draw(draw_list);
+		curr_line->Draw(draw_list, cam);
 	}
 	draw_list->AddCircle(io.MousePos, 2, IM_COL32(255, 0, 0, 255));
 	
 	for (Line* l : lines) {
-		l->Draw(draw_list);
+		l->Draw(draw_list, cam);
 	}
-
+	
+	
 
 	handle_drawing(io.DeltaTime, mouse_pos, is_hovered, is_active);
 	draw_list->PopClipRect();
@@ -68,7 +101,7 @@ void Canvas::handle_drawing(float &dt, ImVec2 &mouse_pos, const bool &is_hovered
 			delta += dt;
 			if (((Vec2)last_pos - mouse_pos).length() >2) {
 				//std::cout << "UpdateLine\n";
-				curr_line->AddPoint(mouse_pos);
+				curr_line->AddPoint(mouse_pos, cam);
 				curr_line->AddPressPoint(curr_press);
 				curr_line->ApplySmoothing();
 				last_pos = mouse_pos;

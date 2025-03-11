@@ -150,6 +150,7 @@ int main() {
     }
 
     // Cleanup
+    {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
@@ -157,6 +158,6 @@ int main() {
     SDL_GL_DestroyContext(gl_context);
     SDL_DestroyWindow(window);
     SDL_Quit();
-
+    }
     return 0;
 }

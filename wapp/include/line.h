@@ -4,15 +4,16 @@
 #include <vector>
 #include "Vec2.h"
 #include "imgui.h"
+#include "Camera.h"
 
 class Line {
 public:
 	Line();
 	~Line();
 
-	void AddPoint(Vec2 point);
+	void AddPoint(Vec2 point, Camera& cam);
 	void AddPressPoint(float press);
-	void Draw(ImDrawList* draw_list);
+	void Draw(ImDrawList* draw_list, Camera &cam);
 	void ApplySmoothing();
 	Vec2 GetLastSmoothedPoint();
 

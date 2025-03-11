@@ -3,6 +3,8 @@
 #include "imgui.h"
 #include <vector>
 #include "line.h"
+#include "camera.h"
+
 class Canvas {
 public:
 	Canvas();
@@ -19,6 +21,7 @@ private:
 	float curr_press;
 	Vec2 curr_pos;
 	std::vector<Line*> lines;
+	Camera cam;
 };
 
 #endif

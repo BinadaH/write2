@@ -13,8 +13,8 @@ Line::Line() {
     line_width = 5;
 }
 
-void Line::AddPoint(Vec2 point) {
-	points.push_back(point);
+void Line::AddPoint(Vec2 point, Camera &cam) {
+	points.push_back(cam.ScreenToWorld(point));
 }
 
 void Line::AddPressPoint(float _press)
@@ -22,8 +22,14 @@ void Line::AddPressPoint(float _press)
     press.push_back(_press);
 }
 
-void Line::Draw(ImDrawList* draw_list)
+void Line::Draw(ImDrawList* draw_list, Camera &cam)
 {
+    static std::vector<ImVec2> screen_points;
+    screen_points.resize(draw_points.size());
+
+    for (int i = 0; i < draw_points.size(); i++) {
+        screen_points[i] = cam.WorldToScreen((Vec2)draw_points[i]).im();
+    }
 
     if (ImGui::GetIO().KeyCtrl) {
         for (int i = 1; i < points.size(); i++) {
@@ -31,14 +37,9 @@ void Line::Draw(ImDrawList* draw_list)
         }
     }
     else {
-        //for (int i = 1; i < draw_points.size(); i++) {
-        //   float curr_press = press[press.size() / draw_points.size() * i];
-        //    draw_list->AddLine(ImVec2(draw_points[i].x, draw_points[i].y), ImVec2(draw_points[i - 1].x, draw_points[i - 1].y), IM_COL32(255, 255, 255, 255), curr_press * line_width);
-        //}
-        
-        draw_list->AddPolylineVariableWidth(draw_points.data(), draw_points.size(), ImColor(255, 255, 255, 255), ImDrawFlags_None, line_width, press.data(), press.size());
+        //std::cout << cam.ScaleWorldToScreen(25) << "\n";
+        draw_list->AddPolylineVariableWidth(screen_points.data(), screen_points.size(), ImColor(255, 255, 255, 255), ImDrawFlags_None, (int)std::roundf(cam.ScaleWorldToScreen(line_width)), press.data(), press.size());
     }
-
 }
 void Line::ApplySmoothing() {
     draw_points.resize(points.size());
