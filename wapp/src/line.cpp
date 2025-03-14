@@ -28,7 +28,8 @@ void Line::Draw(ImDrawList* draw_list, Camera &cam)
     screen_points.resize(draw_points.size());
 
     for (int i = 0; i < draw_points.size(); i++) {
-        screen_points[i] = cam.WorldToScreen((Vec2)draw_points[i]).im();
+		Vec2 pos = (Vec2)draw_points[i];
+        screen_points[i] = cam.WorldToScreen(pos).im();
     }
 
     if (ImGui::GetIO().KeyCtrl) {
@@ -41,7 +42,27 @@ void Line::Draw(ImDrawList* draw_list, Camera &cam)
         draw_list->AddPolylineVariableWidth(screen_points.data(), screen_points.size(), ImColor(255, 255, 255, 255), ImDrawFlags_None, (int)std::roundf(cam.ScaleWorldToScreen(line_width)), press.data(), press.size());
     }
 }
+
+void  UpdateWithExpMovingAverage(std::vector<ImVec2> &draw_points, std::vector<Vec2> &points) {
+    draw_points.resize(points.size());
+    const float a = 0.8f;
+    if (points.empty()) return;
+
+    // Start with the first point as the initial "smoothed" point
+    ImVec2 smoothedPoint = points[0].im();
+    draw_points[0] = smoothedPoint;
+
+    // Apply EMA for each point starting from the second one
+    for (size_t i = 1; i < points.size(); ++i) {
+        smoothedPoint.x = a * points[i].x + (1 - a) * smoothedPoint.x;
+        smoothedPoint.y = a * points[i].y + (1 - a) * smoothedPoint.y;
+        draw_points[i] = smoothedPoint; // Update the point with the smoothed value
+    }
+}
+
 void Line::ApplySmoothing() {
+	UpdateWithExpMovingAverage(draw_points, points);
+	return ;
     draw_points.resize(points.size());
     const float a = 0.4f;  // EMA smoothing factor
 
@@ -119,20 +140,3 @@ ImVec2 Line::ApplyLoessFit(int start, int end, int current, float bandwidth) {
 
 
 
-//void  Line::UpdateWithExpMovingAverage() {
-//    draw_points.resize(points.size());
-//    const float a = 0.4f;
-//    if (points.empty()) return;
-//
-//    // Start with the first point as the initial "smoothed" point
-//    ImVec2 smoothedPoint = points[0].toImVec2();
-//    draw_points[0] = smoothedPoint;
-//
-//    // Apply EMA for each point starting from the second one
-//    for (size_t i = 1; i < points.size(); ++i) {
-//        smoothedPoint.x = a * points[i].x + (1 - a) * smoothedPoint.x;
-//        smoothedPoint.y = a * points[i].y + (1 - a) * smoothedPoint.y;
-//        draw_points[i] = smoothedPoint; // Update the point with the smoothed value
-//    }
-//}
-//

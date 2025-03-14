@@ -4,7 +4,7 @@
 #include <vector>
 #include "Vec2.h"
 #include "imgui.h"
-#include "Camera.h"
+#include "camera.h"
 
 class Line {
 public:

@@ -17,11 +17,11 @@ Canvas::~Canvas() {
 
 void Canvas::Process(ImGuiIO &io) {
 	ImGui::Begin("Canvas", 0, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-	
+
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 	draw_list->Flags |= ImDrawListFlags_AntiAliasedLines;
-	
+
 
 	ImVec2 canvas_sz = ImGui::GetWindowSize();
 	ImVec2 mouse_pos = io.MousePos;
@@ -40,7 +40,8 @@ void Canvas::Process(ImGuiIO &io) {
 	if (is_hovered) {
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 		if (io.MouseDown[2]) {
-			cam.MoveBy((Vec2)io.MouseDelta * -1);
+			Vec2 move_to = (Vec2)io.MouseDelta * -1;
+			cam.MoveBy(move_to);
 		}
 		if (io.MouseWheel) {
 			cam.Zoom(io.MouseWheel);
@@ -48,7 +49,8 @@ void Canvas::Process(ImGuiIO &io) {
 	}
 
 	//std::cout << cam.cam_size << "\n";
-	draw_list->AddCircleFilled(cam.WorldToScreen(Vec2(0, 0)).im(), cam.ScaleWorldToScreen(25), IM_COL32(255, 0, 0, 255));
+	Vec2 circ_pos = Vec2(0, 0);
+	draw_list->AddCircleFilled(cam.WorldToScreen(circ_pos).im(), cam.ScaleWorldToScreen(25), IM_COL32(255, 0, 0, 255));
 
 	//std::cout << io.MousePos.x << "; " << io.MousePos.y << "\n";
 
@@ -58,14 +60,16 @@ void Canvas::Process(ImGuiIO &io) {
 	static const int grid_size = 100;
 	Vec2 start_i = (cam.world_pos - cam.cam_size) / grid_size;
 	for (int x = (int)(start_i.x) * grid_size; x < cam.world_pos.x + cam.cam_size.x; x += grid_size) {
-		ImVec2 p0 = cam.WorldToScreen(Vec2(x, 0)).im();
+		Vec2 pos = Vec2(x, 0);
+		ImVec2 p0 = cam.WorldToScreen(pos).im();
 		ImVec2 p1 = p0;
 		p0.y = 0;
 		p1.y = canvas_sz.y;
 		draw_list->AddLine(p0, p1, GRID_COL, 1);
 	}
 	for (int y = (int)(start_i.y) * grid_size; y < cam.world_pos.y + cam.cam_size.y; y += grid_size) {
-		ImVec2 p0 = cam.WorldToScreen(Vec2(0, y)).im();
+		Vec2 pos = Vec2(0, y);
+		ImVec2 p0 = cam.WorldToScreen(pos).im();
 		ImVec2 p1 = p0;
 		p0.x = 0;
 		p1.x = canvas_sz.x;
@@ -78,12 +82,12 @@ void Canvas::Process(ImGuiIO &io) {
 		curr_line->Draw(draw_list, cam);
 	}
 	draw_list->AddCircle(io.MousePos, 2, IM_COL32(255, 0, 0, 255));
-	
+
 	for (Line* l : lines) {
 		l->Draw(draw_list, cam);
 	}
-	
-	
+
+
 
 	handle_drawing(io.DeltaTime, mouse_pos, is_hovered, is_active);
 	draw_list->PopClipRect();
