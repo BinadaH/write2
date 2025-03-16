@@ -1,7 +1,7 @@
 #include "canvas.h"
 #include <iostream>
 
-Canvas::Canvas() {
+Canvas::Canvas(AppStatus &stat) : status(stat) {
 	curr_line = NULL;
 	curr_press = 1;
 	cam.zoom_vel = 0.4;
@@ -118,6 +118,7 @@ void Canvas::handle_drawing(float &dt, ImVec2 &mouse_pos, const bool &is_hovered
 			//std::cout << "New Line\n";
 			last_pos = mouse_pos;
 			curr_line = new Line();
+			curr_line->line_width = status.curr_line_width;
 		}
 	}
 	else {

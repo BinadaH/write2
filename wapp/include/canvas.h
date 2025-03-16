@@ -4,10 +4,11 @@
 #include <vector>
 #include "line.h"
 #include "camera.h"
+#include "app_status.h"
 
 class Canvas {
 public:
-	Canvas();
+	Canvas(AppStatus &stat);
 	~Canvas();
 
 	void Process(ImGuiIO &io);
@@ -17,6 +18,7 @@ public:
 	void SetCurrPos(int x, int y);
 
 private:
+	AppStatus &status;
 	Line* curr_line;
 	float curr_press;
 	Vec2 curr_pos;

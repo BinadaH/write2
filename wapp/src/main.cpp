@@ -1,14 +1,13 @@
 #include <iostream>
 
 #include "imgui.h"
-#include "imgui_internal.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_opengl.h>
 
-#include "canvas.h"
+#include "app.h"
 
 int main() {
     // Initialize SDL
@@ -69,8 +68,9 @@ int main() {
     bool quit = false;
     SDL_Event e;
 
-
-    Canvas canvas;
+	
+    AppStatus status;
+    App app(io, status);
 
     // Main loop
     while (!quit) {
@@ -109,11 +109,11 @@ int main() {
                     break;
                 io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
                 io.AddMouseButtonEvent(mouse_button, (e.type == SDL_EVENT_MOUSE_BUTTON_DOWN));
-                canvas.SetCurrPress(1);
+                status.SetCurrPress(1);
 
             }
             else if (e.type == SDL_EVENT_PEN_AXIS && e.paxis.axis == SDL_PEN_AXIS_PRESSURE) {
-                canvas.SetCurrPress(e.paxis.value);
+                status.SetCurrPress(e.paxis.value);
             }
             else
                 ImGui_ImplSDL3_ProcessEvent(&e);
@@ -137,7 +137,11 @@ int main() {
 
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
-        canvas.Process(io);
+
+	
+	//Process app
+	app.Process();
+
 
         // Rendering
         ImGui::Render();

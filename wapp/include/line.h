@@ -18,14 +18,15 @@ public:
 	Vec2 GetLastSmoothedPoint();
 
 	ImVec2 ApplyLoessFit(int start, int end, int current, float bandwidth);
-	
+
+public:
+	float line_width;
 
 private:
 	std::vector<Vec2> points;
 	std::vector<float> press;
 	std::vector<ImVec2> draw_points;
 	std::vector<Vec2> draw2_points;
-	float line_width;
 };
 
 
