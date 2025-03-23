@@ -64,7 +64,7 @@ void Canvas::Process(ImGuiIO &io) {
 		ImVec2 p0 = cam.WorldToScreen(pos).im();
 		ImVec2 p1 = p0;
 		p0.y = 0;
-		p1.y = canvas_sz.y;
+		p1.y = canvas_sz.y + canvas_p0.y;
 		draw_list->AddLine(p0, p1, GRID_COL, 1);
 	}
 	for (int y = (int)(start_i.y) * grid_size; y < cam.world_pos.y + cam.cam_size.y; y += grid_size) {
@@ -72,7 +72,7 @@ void Canvas::Process(ImGuiIO &io) {
 		ImVec2 p0 = cam.WorldToScreen(pos).im();
 		ImVec2 p1 = p0;
 		p0.x = 0;
-		p1.x = canvas_sz.x;
+		p1.x = canvas_sz.x + canvas_p0.x;
 		draw_list->AddLine(p0, p1, GRID_COL, 1);
 	}
 
